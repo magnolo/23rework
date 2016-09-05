@@ -1,8 +1,8 @@
-class ChapterContentController{
+class ChapterContentController {
     constructor(
         $scope, $rootScope, $timeout, $state, $log,
         DataService, IndicatorService, IndexService, DialogService,
-        ExportService, MapService){
+        ExportService, MapService) {
         'ngInject';
 
         this.$scope = $scope;
@@ -29,21 +29,49 @@ class ChapterContentController{
         this.compareList = [];
 
         this.chapterId = this.$state.params.chapter;
+
+
         //
+        this.MapService.countryClick((data) => {
+            this.$log.log(data);
+            if (!this.countryExistsInData(data.feature.id)) return false;
+            if (this.compare) {
+                this.addCompareCountry(data.feature.id, true)
+                this.showComparison();
+            } else {
+                $state.go('app.export.detail.chapter.indicator.country', {
+                    indicator: this.ExportService.indicator.indicator_id,
+                    indiname: this.ExportService.indicator.name,
+                    iso: data.feature.id
+                });
+                //$rootScope.sidebarOpen = false;
+                this.getCountryByIso(data.feature.id);
+                this.fetchNationData(data.feature.id);
+            }
+        });
     }
 
-    $onInit(){
+    $onInit() {
         this.loadStateData();
 
         this.$scope.$watch('vm.selectedIndicator',
             (n, o) => {
-                if(n === o || angular.isUndefined(n.id)) return false;
-                if(angular.isDefined(o)){
-                    if(n.id == o.id) return false;
+                if (n === o || angular.isUndefined(n.id)) return false;
+                if (angular.isDefined(o)) {
+                    if (n.id == o.id) return false;
                 }
                 this.gotoIndicator();
             }
         );
+    }
+    countryExistsInData(iso) {
+        var found = false;
+        angular.forEach(this.data, (item)  => {
+            if (item.iso == iso) {
+                found = true;
+            }
+        });
+        return found;
     }
 
     renderIndicator(item, callback) {
@@ -59,7 +87,7 @@ class ChapterContentController{
                     hideNumbering: true,
                     width: 60,
                     height: 60,
-                    fontSize:12
+                    fontSize: 12
                 };
                 this.MapService.setBaseLayer(item.style.basemap);
                 this.MapService.setMapDefaults(item.style);
@@ -68,8 +96,7 @@ class ChapterContentController{
                 if (angular.isFunction(callback)) {
                     callback();
                 }
-            },
-            {
+            }, {
                 data: true
             }
         );
@@ -114,16 +141,15 @@ class ChapterContentController{
                     idx = key;
                 }
             })
-            if(angular.isDefined(this.selectedCountry.iso)){
+            if (angular.isDefined(this.selectedCountry.iso)) {
                 this.$state.go('app.export.detail.chapter.indicator.country', {
                     chapter: idx + 1,
                     indicator: this.selectedIndicator.indicator_id,
                     indiname: this.selectedIndicator.name,
-                    iso:this.selectedCountry.iso
+                    iso: this.selectedCountry.iso
                 });
-            }
-            else{
-               this.$state.go('app.export.detail.chapter.indicator', {
+            } else {
+                this.$state.go('app.export.detail.chapter.indicator', {
                     chapter: idx + 1,
                     indicator: this.selectedIndicator.indicator_id,
                     indiname: this.selectedIndicator.name
@@ -137,31 +163,29 @@ class ChapterContentController{
                         idx = key;
                     }
                 })
-                if(angular.isDefined(this.selectedCountry.iso)){
-                   this.$state.go('app.export.detail.chapter.indicator.country', {
+                if (angular.isDefined(this.selectedCountry.iso)) {
+                    this.$state.go('app.export.detail.chapter.indicator.country', {
                         chapter: idx + 1,
                         indicator: this.selectedIndicator.indicator_id,
                         indiname: this.selectedIndicator.name,
-                        iso:this.selectedCountry.iso
+                        iso: this.selectedCountry.iso
                     });
-                }
-                else{
-                   this.$state.go('app.export.detail.chapter.indicator', {
+                } else {
+                    this.$state.go('app.export.detail.chapter.indicator', {
                         chapter: idx + 1,
                         indicator: this.selectedIndicator.indicator_id,
                         indiname: this.selectedIndicator.name
                     });
                 }
             } else {
-                if(angular.isDefined(this.selectedCountry.iso)){
-                   this.$state.go('app.export.detail.chapter.indicator.country', {
+                if (angular.isDefined(this.selectedCountry.iso)) {
+                    this.$state.go('app.export.detail.chapter.indicator.country', {
                         indicator: this.selectedIndicator.indicator_id,
                         indiname: this.selectedIndicator.name,
-                        iso:this.selectedCountry.iso
+                        iso: this.selectedCountry.iso
                     });
-                }
-                else{
-                   this.$state.go('app.export.detail.chapter.indicator', {
+                } else {
+                    this.$state.go('app.export.detail.chapter.indicator', {
                         indicator: this.selectedIndicator.indicator_id,
                         indiname: this.selectedIndicator.name
                     });
@@ -178,7 +202,7 @@ class ChapterContentController{
         let idx = this.compareList.indexOf(iso);
         angular.forEach(this.data,
             (nat) => {
-                if(nat.iso == iso)
+                if (nat.iso == iso)
                     cl = nat;
             }
         );
@@ -187,16 +211,21 @@ class ChapterContentController{
                 this.countriesList.push(cl);
                 this.compareList.push(cl.iso);
                 this.MapService.setSelectedFeature(cl.iso, true);
-            }
-        else if (withRemove) {
-                this.compareList.splice(idx, 1);
-                this.countriesList.splice(this.countriesList.indexOf(cl), 1);
-                this.MapService.setSelectedFeature(iso, false);
-            }
+            } else if (withRemove) {
+            this.compareList.splice(idx, 1);
+            this.countriesList.splice(this.countriesList.indexOf(cl), 1);
+            this.MapService.setSelectedFeature(iso, false);
+        }
     }
 
     showInfo() {
         this.DialogService.fromTemplate('export', this.$scope);
+    }
+    showComparison() {
+        $state.go('app.export.detail.chapter.indicator.country.compare', {
+            countries: this.compareList.join('-vs-')
+        });
+        this.MapService.gotoCountries($state.params.iso, this.compareList);
     }
 
     loadStateData() {
@@ -218,12 +247,11 @@ class ChapterContentController{
                                 this.activeTab = 2;
                                 this.MapService.gotoCountries(this.$state.params.iso, this.compareList);
                             }
-                        }
-                        else {
+                        } else {
                             this.selectedCountry = {};
                         }
                         if (angular.isDefined(this.ExportService.chapter)) {
-                            if(this.ExportService.chapter.description) {
+                            if (this.ExportService.chapter.description) {
                                 this.showInfo();
 
                                 this.$log.log("########################");

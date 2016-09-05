@@ -61,8 +61,8 @@
     <script src="{!! elixir('js/partials.js') !!}"></script>
     <script src="{!! elixir('js/app.js') !!}"></script>
 
-    <script src="js/pbf.min.js"></script>
-    <script src="js/MapBoxVectorTile/dist/Leaflet.MapboxVectorTile.js"></script>
+    <script src="assets/js/pbf.min.js"></script>
+    <script src="assets/js/MapBoxVectorTile/dist/Leaflet.MapboxVectorTile.js"></script>
 
     {{--livereload--}}
     @if ( env('APP_ENV') === 'local' )

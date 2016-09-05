@@ -15,10 +15,10 @@ angular.module('app.routes', []);
 angular.module('app.filters', []);
 angular.module('app.services', []);
 angular.module('app.config', []);
-angular.module('app.directives', ['leaflet-directive']);
+angular.module('app.directives', ['ui-leaflet']);
 angular.module('app.components', [
 	'ui.router', 'ngMaterial', 'angular-loading-bar',
-	'restangular', 'ngStorage', 'satellizer',
+	'restangular', 'ngStorage',
 	'angular-carousel','nvd3'
 ]);
 angular.module('app.controllers', []);

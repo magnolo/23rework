@@ -9,7 +9,7 @@ export class APIService {
 
 		return Restangular.withConfig(function(RestangularConfigurer) {
 			RestangularConfigurer
-				.setBaseUrl('http://localhost:8066/api/')
+				.setBaseUrl('https://dev.23degree.org/api/')
 				.setDefaultHeaders(headers)
 				.setErrorInterceptor(function(response) {
 					if (response.status === 422 || response.status === 401) {

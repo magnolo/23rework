@@ -101,9 +101,7 @@ class MapController{
             return container;
         }
 
-        this.leafletData.getMap('map').then(function(map) {
-
-
+        this.leafletData.getMap().then(function(map) {
             MapService.setMap(map);
             //var url = 'http://v22015052835825358.yourvserver.net:3001/services/postgis/' + this.MapService.getName() + '/geom/vector-tiles/{z}/{x}/{y}.pbf?fields=' + this.MapService.fields(); //
             var url = 'https://www.23degree.org:3001/services/postgis/' + MapService.getName() + '/geom/vector-tiles/{z}/{x}/{y}.pbf?fields=' + MapService.fields(); //
@@ -114,14 +112,14 @@ class MapController{
                 detectRetina:true,
                 clickableLayers: [MapService.getName() + '_geom'],
                 mutexToggle: true,
-                getIDForLayerFeature: function(feature) {
+                getIDForLayerFeature: (feature) =>  {
                     return feature.properties.iso_a2;
                 },
-                filter: function(feature, context) {
+                filter: (feature, context) => {
 
                     return true;
                 },
-                style: function(feature) {
+                style: (feature) => {
                     var style = {};
                     style.color = 'rgba(0,0,0,0)';
                     style.outline = {
@@ -131,13 +129,12 @@ class MapController{
                     return style;
                 }
             });
-
             map.addLayer(MapService.setLayer(layer));
             map.addControl(MyControl);
             map.addControl(BackHome);
 
         });
-        
+
     }
 
     toggleLayers(overlayName) {
@@ -153,7 +150,7 @@ class MapController{
 
 
     }
-    
+
 }
 
 export const MapComponent = {

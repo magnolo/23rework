@@ -35,7 +35,11 @@ export class MapService{
         this.data = {
             layer: '',
             //Tabellenname in der die Laendershapes liegen
-            name: 'countries_big',
+            name: 'tt_countries',
+            //Tabellnamen für die subnational ebenen
+            adm1: 'tt_adm1',
+            adm2: 'tt_adm2',
+            adm3: 'tt_adm3',
             //Default Farbe
             baseColor: '#06a99c',
             //ISO-3 Code Spalte
@@ -54,7 +58,8 @@ export class MapService{
             data: [],
             current: [],
             structure: [],
-            style: []
+            style: [],
+            attribution:''
         };
         // Object - Hier wird der Vektorlayer abgespeichert
         this.mapLayer = null;
@@ -92,7 +97,7 @@ export class MapService{
 
         var vm = this;
 
-        this.countriesStyle = function(feature) {
+        this.countriesStyle = (feature) => {
             var style = {};
             var iso = feature.properties[vm.iso_field];
             var nation = vm.getNationByIso(iso);
@@ -144,24 +149,27 @@ export class MapService{
         return this.mapLayer;
     }
 
-    setBaseLayer(basemap) {
-    if (!basemap) {
-        this.basemap = basemap = this.fallbackBasemap;
-    }
-
+    setBaseLayer(basemap, dataprovider) {
+        if (!basemap) {
+            this.basemap = basemap = this.fallbackBasemap;
+        }
+        var attribution = (basemap.attribution || basemap.provider);
+        if(dataprovider){
+          attribution += ' | Data by <a href="'+dataprovider.url+'" target="_blank">' + dataprovider.title + '</a>';
+        }
         this.layers.baselayers['xyz'] = {
             name: basemap.name,
             url: basemap.url,
             type: 'xyz',
-            layerOptions: {
-                noWrap: true,
-                continuousWorld: false,
-                detectRetina: true,
-                // attribution:basemap.attribution || basemap.provider,
-                attribution: "Copyright:© 2014 Esri, DeLorme, HERE, TomTom"
-            }
-
+            // layerOptions: {
+            //     noWrap: true,
+            //     continuousWorld: false,
+            //     detectRetina: true,
+            //     // attribution:basemap.attribution || basemap.provider,
+            //     attribution: "Copyright:© 2014 Esri, DeLorme, HERE, TomTom"
+            // }
         }
+        this.map.attribution = attribution;
     }
 
     setMapDefaults(style) {
@@ -175,12 +183,37 @@ export class MapService{
             this.mapLayer.scrollWheelZoom.disable()
         }
         if (style.legends) {
-            this.legend = {
-                colors: ['#fff', style.base_color, 'rgba(102,102,102,1)'],
-                labels: ['high', 'Ø', 'low']
-            }
+          if(style.color_range){
+  					this.legend = {
+  						colors: [],
+  						labels: []
+  					}
+  					if(typeof style.color_range == "string"){
+  						style.color_range = JSON.parse(style.color_range);
+  					}
+  					angular.forEach(style.color_range, (color) => {
+  						if(color.hasLabel){
+  							this.legend.colors.push(color.color);
+  							if(color.label){
+  								this.legend.labels.push(color.label);
+  							}
+  							else{
+  								this.legend.labels.push(parseFloat(color.stop*100).toFixed(0));
+  							}
+  						}
+  					});
+  					if(this.legend.colors.length == 0){
+  						this.legend = null;
+  					}
+  				}
+  				else{
+  					this.legend = {
+  						colors: ['#fff', style.base_color, 'rgba(102,102,102,1)'],
+  						labels: ['high', 'Ø', 'low']
+  					}
+  				}
         } else {
-            this.legend = {}
+            this.legend = null;
         }
 
     }
@@ -192,10 +225,16 @@ export class MapService{
     setLayer(l) {
         return this.data.layer = l;
     }
+    setAdm1Layer(l) {
+			return this.data.layerAdm1 = l;
+		}
 
     getLayer() {
-        return this.data.layer;
+      return this.data.layer;
     }
+    getAdm1(){
+			return this.data.adm1;
+		}
 
     getName() {
         return this.data.name;
@@ -229,8 +268,8 @@ export class MapService{
         var gradient = this.ctx.createLinearGradient(0, 0, 257, 10);
         //Legt Position und Farbwert im Gradient fest
         gradient.addColorStop(1, 'rgba(255,255,255,0)');
-        gradient.addColorStop(0.53, color || 'rgba(128, 243, 198,1)');
-        gradient.addColorStop(0, 'rgba(102,102,102,1)');
+        gradient.addColorStop(0.53, color || 'rgba(128, 243, 198,0.6)');
+        gradient.addColorStop(0, 'rgba(102,102,102,0.6)');
         //Zeichnet Gradient in 2d context
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, 257, 10);
@@ -261,8 +300,8 @@ export class MapService{
         var gradient = this.ctx.createLinearGradient(0, 0, 257, 10);
 
         for (var i = 0; i < colorRange.length; i++) {
-            gradient.addColorStop(1 / (colorRange.length - 1) * i, colorRange[i]);
-        }
+  				gradient.addColorStop(colorRange[i].stop, colorRange[i].color);
+  			}
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, 257, 10);
         this.palette = this.ctx.getImageData(0, 0, 257, 1).data;
@@ -272,7 +311,7 @@ export class MapService{
     updateFixedCanvas(colorRange) {
         var gradient = this.ctx.createLinearGradient(0, 0, 257, 10);
         for (var i = 0; i < colorRange.length; i++) {
-            gradient.addColorStop(1 / (colorRange.length - 1) * i, colorRange[i]);
+          gradient.addColorStop(colorRange[i].stop, colorRange[i].color);
         }
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, 257, 10);
@@ -372,7 +411,7 @@ export class MapService{
                     this.data.layer.setStyle(this.countriesStyle);
                 }
                 if (angular.isDefined(click)) {
-                    this.data.layer.options.onClick = click
+                    this.data.layer.options.onClick = click;
                 }
                 this.data.layer.redraw();
             }
@@ -419,13 +458,22 @@ export class MapService{
     }
 
     paint(color) {
+      if(typeof color == "string"){
         this.setBaseColor(color);
         if (this.ctx) {
             this.updateCanvas(color);
         } else {
             this.createCanvas(color)
         }
-        this.paintCountries();
+      }
+      else{
+        if (this.ctx) {
+					this.updateFixedCanvas(color);
+				} else {
+					this.createFixedCanvas(color)
+				}
+      }
+      this.paintCountries();
     }
 
     gotoCountry(iso) {

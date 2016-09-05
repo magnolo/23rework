@@ -1,19 +1,10 @@
-export function RoutesRun($log, $rootScope, $state, $auth) {
+export function RoutesRun($log, $rootScope, $state) {
     'ngInject';
 
 
     let deregisterationCallback =  $rootScope.$on("$stateChangeStart", function(event, toState) {
 
-        $rootScope.providerAddress = 'http://localhost:8066';
-
-        if (toState.data && toState.data.auth) {
-            /*Cancel going to the authenticated state and go back to the login page*/
-            if (!$auth.isAuthenticated()) {
-                event.preventDefault();
-                return $state.go('app.login');
-            }
-        }
-
+        $rootScope.providerAddress = 'http://dev.23degree.org';
 
         if (angular.isDefined(toState.views))
             if (toState.views.hasOwnProperty('fullscreen@')) {
@@ -22,7 +13,7 @@ export function RoutesRun($log, $rootScope, $state, $auth) {
             else {
                 $rootScope.fullscreenView = false;
             }
-        
+
 
     });
     $rootScope.$on('$destroy', deregisterationCallback)

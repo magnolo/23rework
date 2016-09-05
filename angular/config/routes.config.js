@@ -33,8 +33,8 @@ export function RoutesConfig($stateProvider, $urlRouterProvider) {
             abstract: true,
             url: '/export',
             resolve: {
-                countries: function(DataService) {
-                    return DataService.getOne('countries/isos').then(function(countries) {
+                countries: (DataService) => {
+                    return DataService.getOne('countries/isos').then((countries) => {
                         return countries;
                     });
                 }
