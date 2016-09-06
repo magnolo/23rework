@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{!! elixir('css/vendor.css') !!}">
     <link rel="stylesheet" href="{!! elixir('css/app.css') !!}">
     <link href='https://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <title>23° | mapping data for global understanding</title>
 
@@ -22,7 +23,7 @@
         <header ui-view="header"></header>
     </md-toolbar>
 
-    <div ui-view="sidebar"></div>
+    <md-sidenav id="sidebar" ui-view="sidebar" md-is-locked-open="$mdMedia('gt-sm')"></md-sidenav>
     <div class="main-view" ui-view="main"></div>
     <div id="fullscreen-view" ui-view="fullscreen" class="doAnim-fade-long" layout-fill ng-if="$root.fullscreenView" flex layout="row" layout-align="center center"></div>
 

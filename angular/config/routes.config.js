@@ -58,7 +58,7 @@ export function RoutesConfig($stateProvider, $urlRouterProvider) {
             },
             views: {
                 'header@': {
-                    templateUrl: getView('chapter')
+                    templateUrl: getView('header')
                 },
                 'sidebar@': {
                     templateUrl: getView('chapterContent')
@@ -72,7 +72,7 @@ export function RoutesConfig($stateProvider, $urlRouterProvider) {
             url:'/:indicator/:indiname',
             views: {
                 'header@': {
-                    templateUrl: getView('chapter')
+                    templateUrl: getView('header')
                 },
                 'sidebar@': {
                     templateUrl: getView('chapterContent')
@@ -87,37 +87,5 @@ export function RoutesConfig($stateProvider, $urlRouterProvider) {
         })
         .state('app.export.detail.chapter.indicator.country.compare', {
             url:'/:compare/:countries'
-        })
-        .state('app.login', {
-			url: '/login',
-			views: {
-				'main@': {
-					templateUrl: getView('login')
-				}
-			}
-		})
-        .state('app.register', {
-            url: '/register',
-            views: {
-                'main@': {
-                    templateUrl: getView('register')
-                }
-            }
-        })
-        .state('app.forgot_password', {
-            url: '/forgot-password',
-            views: {
-                'main@': {
-                    templateUrl: getView('forgot-password')
-                }
-            }
-        })
-        .state('app.reset_password', {
-            url: '/reset-password/:email/:token',
-            views: {
-                'main@': {
-                    templateUrl: getView('reset-password')
-                }
-            }
         });
 }

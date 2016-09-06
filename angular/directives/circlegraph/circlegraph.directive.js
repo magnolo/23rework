@@ -141,12 +141,12 @@ export function CirclegraphDirective() {
                     n[scope.options.field] = scope.options.size;
                 }
 
-                    animateIt(n[scope.options.field]);
+                animateIt(n[scope.options.field]);
 
             });
             scope.$watch('options', function(n, o) {
                 if (n === o || !n) return;
-                  animateIt(scope.item[scope.options.field]);
+                animateIt(scope.item[scope.options.field]);
 
             }, true);
         }
