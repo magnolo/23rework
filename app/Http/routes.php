@@ -16,20 +16,3 @@ Route::group(['middleware' => ['web']], function () {
 
     Route::get('/unsupported-browser', 'AngularController@unsupported');
 });
-
-//public API routes
-$api->group(['middleware' => ['api']], function ($api) {
-
-    // Authentication Routes...
-    $api->post('auth/login', 'Auth\AuthController@login');
-    $api->post('auth/register', 'Auth\AuthController@register');
-
-    // Password Reset Routes...
-    $api->post('auth/password/email', 'Auth\PasswordResetController@sendResetLinkEmail');
-    $api->get('auth/password/verify', 'Auth\PasswordResetController@verify');
-    $api->post('auth/password/reset', 'Auth\PasswordResetController@reset');
-});
-
-//protected API routes with JWT (must be logged in)
-$api->group(['middleware' => ['api', 'api.auth']], function ($api) {
-});
